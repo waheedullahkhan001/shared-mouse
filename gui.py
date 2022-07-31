@@ -13,12 +13,14 @@ class MainWindow(QWidget):
 
     def createWidgets(self):
         self.grid = QGridLayout()
+
         self.ipLineEdit = QLineEdit()
         self.joinButton = QPushButton("Join")
         self.hostButton = QPushButton("Host")
         self.statusLable = QLabel("Status: Waiting for user input...")
 
         self.joinButton.clicked.connect(self.joinButtonClicked)
+        self.joinButton.clicked.connect(self.hostButtonClicked)
 
         self.grid.addWidget(self.ipLineEdit, 0, 0, 1, 2)
         self.grid.addWidget(self.joinButton, 0, 2)
@@ -30,9 +32,11 @@ class MainWindow(QWidget):
     def joinButtonClicked(self):
         pass
 
+    def hostButtonClicked(self):
+        pass
 
-app = QApplication(sys.argv)
 
-window = MainWindow()
-
-sys.exit(app.exec_())
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    window = MainWindow()
+    sys.exit(app.exec_())
