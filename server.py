@@ -49,4 +49,11 @@ class SharedMouseServer:
         return message
 
     def close(self):
+        # temp fix for closing server
+        try:
+            temp_client = socket(AF_INET, SOCK_STREAM)
+            temp_client.connect(("localhost", self.port))
+            temp_client.close()
+        except:
+            pass
         self.serverSocket.close()
