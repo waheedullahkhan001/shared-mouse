@@ -13,13 +13,12 @@ from server import SharedMouseServer
 
 
 class GUI(QMainWindow):
-    def __init__(self):
+    def __init__(self, port: int, height: int, width: int):
         super().__init__()
 
-        self.port = 8901
-        # size = self.getScreenSize()
-        # self.screenWidth = size.width()
-        # self.screenHeight = size.height()
+        self.port = port
+        self.screenHeight = height
+        self.screenWidth = width
 
         self.root = None
         self.vBox = None
@@ -159,8 +158,7 @@ class GUI(QMainWindow):
                 address = "localhost"
             try:
                 self.setStatus("Connecting...")
-                # TODO: Change this resolution to your screen resolution
-                self.client = SharedMouseClient(address, self.port, 1366, 728)  #TODO: get real screen size, it was giving error for me
+                self.client = SharedMouseClient(address, self.port, self.screenWidth, self.screenHeight)
                 self.setStatus("Connected to server!")
                 self.clientThread = Thread(target=self.client.clientLoop, daemon=True)
                 self.clientThread.start()
@@ -184,8 +182,7 @@ class GUI(QMainWindow):
         if not self.hosting:
             self.joinButton.setEnabled(False)
             self.addressLineEdit.setEnabled(False)
-            # TODO: Change this resolution to your screen resolution
-            self.server = SharedMouseServer("0.0.0.0", self.port, 1366, 728)  #TODO: get real screen size, it was giving error for me
+            self.server = SharedMouseServer("0.0.0.0", self.port, self.screenWidth, self.screenHeight)
             self.serverThread = Thread(target=self.waitClient, args=(self.server,), daemon=True)
             self.serverThread.start()
             self.setStatus("Waiting for client...")
@@ -211,6 +208,8 @@ class GUI(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    gui = GUI()
+    screen = app.primaryScreen()
+    size = screen.size()
+    gui = GUI(port=8901, height=size.height(), width=size.width())
     gui.show()
     sys.exit(app.exec_())
