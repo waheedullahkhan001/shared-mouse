@@ -2,21 +2,37 @@
 
 
 import sys
-
 from threading import Thread
 
-from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-from PyQt5.QtMultimedia import *
+from PyQt5.QtWidgets import *
 
-from server import SharedMouseServer
 from client import SharedMouseClient
+from server import SharedMouseServer
 
 
 class GUI(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        self.root = None
+        self.vBox = None
+
+        self.hBox1 = None
+        self.hBox2 = None
+        self.hBox3 = None
+        self.hBox4 = None
+        self.hBox5 = None
+
+        self.checkBox = None
+        self.statusLabel = None
+        self.hostButton = None
+        self.joinButton = None
+        self.securityKeyLineEdit = None
+        self.securityKeyLabel = None
+        self.newKeyButton = None
+        self.addressLineEdit = None
 
         self.setWindowTitle("Shared Mouse")
         self.setFixedSize(600, 275)
@@ -24,7 +40,7 @@ class GUI(QMainWindow):
         self.createMenu()
         self.createWidgets()
 
-        self.joinning = False
+        self.joining = False
         self.hosting = False
         self.server = None
         self.client = None
@@ -44,7 +60,6 @@ class GUI(QMainWindow):
         self.setCentralWidget(self.root)
         self.root.setLayout(self.vBox)
 
-
         # Working area
         self.hBox1 = QHBoxLayout()
         self.hBox2 = QHBoxLayout()
@@ -59,16 +74,14 @@ class GUI(QMainWindow):
         self.vBox.addLayout(self.hBox4)
         self.vBox.addLayout(self.hBox5)
 
-
-        # there are 5 entries (all hbox) in self.vBox each having stretch periority 0 (0,0,0,0,0)
+        # there are 5 entries (all hbox) in self.vBox each having stretch priority 0 (0,0,0,0,0)
         # 1, 2, 4, 5 are used to contain widgets and 3 is used as seperator
-        # this line will set stretch periority of 3 to 1 (0,0,1,0,0) so other don't stretch 
+        # this line will set stretch priority of 3 to 1 (0,0,1,0,0) so other don't stretch
         # and make it look ugly
         self.vBox.setStretch(2, 1)
 
-
         # Row 1
-        self.secrityKeyLabel = QLabel("Security Key:")
+        self.securityKeyLabel = QLabel("Security Key:")
         self.securityKeyLineEdit = QLineEdit()
         self.securityKeyLineEdit.setText("Demo Security Key")
         self.securityKeyLineEdit.setEchoMode(QLineEdit.Password)
@@ -78,16 +91,15 @@ class GUI(QMainWindow):
 
         self.checkBox.stateChanged.connect(self.securityKeyCheckBoxClicked)
 
-        self.hBox1.addWidget(self.secrityKeyLabel)
+        self.hBox1.addWidget(self.securityKeyLabel)
         self.hBox1.addWidget(self.securityKeyLineEdit)
         self.hBox1.addWidget(self.checkBox)
         self.hBox1.addWidget(self.newKeyButton)
 
-
         # Row 2
         imgPixmap = QPixmap("resources/images/machine.png")
 
-        for _ in range(3): # we will only work with 3 computers for now
+        for _ in range(3):  # we will only work with 3 computers for now
             vBox = QVBoxLayout()
             self.hBox2.addLayout(vBox)
 
@@ -103,7 +115,6 @@ class GUI(QMainWindow):
             vBox.addWidget(machineImageLabel)
             vBox.addWidget(machineNameLineEdit)
 
-
         # Row 3
         self.addressLineEdit = QLineEdit()
         self.joinButton = QPushButton("Join")
@@ -115,26 +126,24 @@ class GUI(QMainWindow):
         self.hBox4.addWidget(self.joinButton)
         self.hBox4.addWidget(self.hostButton)
 
-
         # Row 4
         self.statusLabel = QLabel("Status: Waiting for user input...")
         self.statusLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
         self.hBox5.addWidget(self.statusLabel)
 
-
         # Connecting signals
-        self.newKeyButton.clicked.connect(self.newkeyButtonClicked)
+        self.newKeyButton.clicked.connect(self.newKeyButtonClicked)
         self.joinButton.clicked.connect(self.joinButtonClicked)
         self.hostButton.clicked.connect(self.hostButtonClicked)
 
-    def newkeyButtonClicked(self):
+    def newKeyButtonClicked(self):
         print(self.securityKeyLineEdit.text())
-    
+
     def securityKeyCheckBoxClicked(self):
-        self.securityKeyLineEdit.setEchoMode(QLineEdit.Normal) if self.checkBox.isChecked()\
+        self.securityKeyLineEdit.setEchoMode(QLineEdit.Normal) if self.checkBox.isChecked() \
             else self.securityKeyLineEdit.setEchoMode(QLineEdit.Password)
-    
+
     def setStatus(self, text: str):
         self.statusLabel.setText(f"Status: {text}")
 
@@ -157,7 +166,7 @@ class GUI(QMainWindow):
                 self.setStatus("Something went wrong while connecting to server!")
         else:
             # kill clientThread here & test if it works
-            self.client.close() # This should cause exception in clientThread to kill it
+            self.client.close()  # This should cause exception in clientThread to kill it
             self.setStatus("Waiting for user input...")
             self.joinButton.setText("Join")
             self.joinButton.setEnabled(True)
@@ -185,12 +194,12 @@ class GUI(QMainWindow):
             self.hosting = False
 
     def waitClient(self, server: SharedMouseServer):
-        try: # debug
+        try:  # debug
             server.waitForClient()
             self.setStatus("Connected to client!")
             server.startMouseListener()
-        except Exception as e: # debug
-            print(f"DEBUG: serverThread: waitClient: Exception\nMSG: {e}") # debug
+        except Exception as e:  # debug
+            print(f"DEBUG: serverThread: waitClient: Exception\nMSG: {e}")  # debug
 
 
 if __name__ == "__main__":
