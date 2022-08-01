@@ -4,7 +4,6 @@
 import sys
 from threading import Thread
 
-from PyQt5 import QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -160,6 +159,7 @@ class GUI(QMainWindow):
                 address = "localhost"
             try:
                 self.setStatus("Connecting...")
+                # TODO: Change this resolution to your screen resolution
                 self.client = SharedMouseClient(address, self.port, 1366, 728)  #TODO: get real screen size, it was giving error for me
                 self.setStatus("Connected to server!")
                 self.clientThread = Thread(target=self.client.clientLoop, daemon=True)
@@ -184,6 +184,7 @@ class GUI(QMainWindow):
         if not self.hosting:
             self.joinButton.setEnabled(False)
             self.addressLineEdit.setEnabled(False)
+            # TODO: Change this resolution to your screen resolution
             self.server = SharedMouseServer("0.0.0.0", self.port, 1366, 728)  #TODO: get real screen size, it was giving error for me
             self.serverThread = Thread(target=self.waitClient, args=(self.server,), daemon=True)
             self.serverThread.start()

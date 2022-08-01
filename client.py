@@ -28,14 +28,14 @@ class SharedMouseClient:
 
             if text.startswith("MV:"):
                 xPercent, yPercent = text[3:].split(",")
-                x = (float(xPercent) / float(100)) * float(self.screenWidth)
-                y = (float(yPercent) / float(100)) * float(self.screenHeight)
+                x = int((float(xPercent) / float(100)) * float(self.screenWidth))
+                y = int((float(yPercent) / float(100)) * float(self.screenHeight))
                 self.mouseMove(x, y)
 
             elif text.startswith("CL:"):
-                x, y, button, pressed = text[3:].split(",")
-                x = int(x)
-                y = int(y)
+                xPercent, yPercent, button, pressed = text[3:].split(",")
+                x = int((float(xPercent) / float(100)) * float(self.screenWidth))
+                y = int((float(yPercent) / float(100)) * float(self.screenHeight))
                 button = self.mouseButtons[button]
                 pressed = bool(int(pressed))
 
