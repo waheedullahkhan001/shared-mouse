@@ -1,9 +1,10 @@
-# create server & client for moving mouse
 from socket import socket, AF_INET, SOCK_STREAM
 from pynput import mouse
 
 connection = None
 headerLength = 10
+fixed_x = 682
+fixed_y = 0
 
 
 def send_text(con, message):
@@ -25,7 +26,8 @@ def receive_text(con):
 
 
 def on_mouse_move(x: int, y: int):
-    mouse_move(682, 0)
+    if x == fixed_x and y == fixed_y:
+        return
     print(f"Mouse moved to {x}, {y}")
     message = f"MV:{x},{y}"
     send_text(connection, message)
@@ -38,7 +40,6 @@ def mouse_move(x, y):
 
 
 def on_mouse_click(x: int, y: int, button: mouse.Button, pressed: bool):
-    mouse.Controller().move(682, 0)
     print(f"Mouse clicked at {x}, {y} with {button}")
     message = f"CL:{x},{y},{button.name},{int(pressed)}"
     send_text(connection, message)
@@ -103,6 +104,7 @@ def main():
         global connection
         connection, _ = server.accept()
         print("Connected to client")
+        mouse_move(fixed_x, fixed_y)
         start_mouse_listener()
     elif choice == "2":
         address = input("Enter address: ")
