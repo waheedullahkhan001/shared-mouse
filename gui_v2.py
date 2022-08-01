@@ -18,6 +18,10 @@ class GUI(QMainWindow):
         super().__init__()
 
         self.port = 8901
+        # size = self.getScreenSize()
+        # self.screenWidth = size.width()
+        # self.screenHeight = size.height()
+
         self.root = None
         self.vBox = None
 
@@ -156,7 +160,7 @@ class GUI(QMainWindow):
                 address = "localhost"
             try:
                 self.setStatus("Connecting...")
-                self.client = SharedMouseClient(address, self.port, self.getScreenHeight(), self.getScreenWidth())
+                self.client = SharedMouseClient(address, self.port, 1366, 728)  #TODO: get real screen size, it was giving error for me
                 self.setStatus("Connected to server!")
                 self.clientThread = Thread(target=self.client.clientLoop, daemon=True)
                 self.clientThread.start()
@@ -180,7 +184,7 @@ class GUI(QMainWindow):
         if not self.hosting:
             self.joinButton.setEnabled(False)
             self.addressLineEdit.setEnabled(False)
-            self.server = SharedMouseServer("0.0.0.0", self.port, self.getScreenHeight(), self.getScreenWidth())
+            self.server = SharedMouseServer("0.0.0.0", self.port, 1366, 728)  #TODO: get real screen size, it was giving error for me
             self.serverThread = Thread(target=self.waitClient, args=(self.server,), daemon=True)
             self.serverThread.start()
             self.setStatus("Waiting for client...")
@@ -202,12 +206,6 @@ class GUI(QMainWindow):
             server.startMouseListener()
         except Exception as e:  # debug
             print(f"DEBUG: serverThread: waitClient: Exception\nMSG: {e}")  # debug
-
-    def getScreenHeight(self):
-        return QtWidgets.QApplication(sys.argv).primaryScreen().size().height()
-
-    def getScreenWidth(self):
-        return QtWidgets.QApplication(sys.argv).primaryScreen().size().width()
 
 
 if __name__ == "__main__":
