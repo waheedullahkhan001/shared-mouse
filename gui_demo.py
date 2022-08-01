@@ -61,7 +61,7 @@ class GUI(QMainWindow):
             
             imageLabel = QLabel()
             lineEdit = QLineEdit()
-            imgPixmap = QPixmap("/home/waheed/Pictures/pc.png")
+            imgPixmap = QPixmap("resources/images/computer.png")
 
             imgPixmap = imgPixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio)
             imageLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
