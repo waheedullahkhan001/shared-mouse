@@ -37,6 +37,9 @@ class GUI(QMainWindow):
         self.hbox2.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.hbox3.setAlignment(Qt.AlignmentFlag.AlignBottom)
 
+        self.hbox2.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.hbox2.setSpacing(30)
+
         self.setCentralWidget(self.root)
         self.root.setLayout(self.vbox)
         self.vbox.addLayout(self.hbox1)
@@ -46,7 +49,7 @@ class GUI(QMainWindow):
 
         self.secrityKeyLabel = QLabel("Security Key:")
         self.securityKeyLineEdit = QLineEdit()
-        self.securityKeyLineEdit.setText("Demo Security Key X&Y")
+        self.securityKeyLineEdit.setText("Demo Security Key")
         self.securityKeyLineEdit.setEchoMode(QLineEdit.Password)
         self.securityKeyLineEdit.setReadOnly(True)
         self.checkBox = QCheckBox("Show text")
@@ -70,6 +73,8 @@ class GUI(QMainWindow):
             machineImageLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
             machineImageLabel.setPixmap(imgPixmap)
             machineNameLineEdit.setPlaceholderText("Machine Name")
+            machineNameLineEdit.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            machineNameLineEdit.setFixedWidth(150)
 
             vbox.addWidget(machineImageLabel)
             vbox.addWidget(machineNameLineEdit)
@@ -78,6 +83,8 @@ class GUI(QMainWindow):
         self.addressLineEdit = QLineEdit()
         self.joinButton = QPushButton("Join")
         self.hostButton = QPushButton("Host")
+        self.joinButton.clicked.connect(self.joinButtonSubmit)
+        self.hostButton.clicked.connect(self.hostButtonSubmit)
 
         self.addressLineEdit.setPlaceholderText("IP Address")
 
@@ -107,7 +114,38 @@ class GUI(QMainWindow):
             self.securityKeyLineEdit.setEchoMode(QLineEdit.Normal)
         else:
             self.securityKeyLineEdit.setEchoMode(QLineEdit.Password)
+    
+    def hostButtonSubmit(self):
+        if self.hosting:
+            
+            self.addressLineEdit.setEnabled(False)
+            self.joinButton.setEnabled(False)
+            self.newKeyButton.setEnabled(False)
+            self.hostButton.setText("Stop")
+            self.hosting = False
+        else:
 
+            self.addressLineEdit.setEnabled(True)
+            self.joinButton.setEnabled(True)
+            self.newKeyButton.setEnabled(True)
+            self.hostButton.setText("Host")
+            self.hosting = True
+    
+    def joinButtonSubmit(self):
+        if self.joining:
+
+            self.addressLineEdit.setEnabled(False)
+            self.hostButton.setEnabled(False)
+            self.newKeyButton.setEnabled(False)
+            self.joinButton.setText("Stop")
+            self.joining = False
+        else:
+
+            self.addressLineEdit.setEnabled(True)
+            self.hostButton.setEnabled(True)
+            self.newKeyButton.setEnabled(True)
+            self.joinButton.setText("Join")
+            self.joining = True
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
