@@ -108,7 +108,7 @@ def main():
         start_mouse_listener()
     elif choice == "2":
         address = input("Enter address: ")
-        if address == "N":
+        if address == "N" or address == "n":
             address = "192.168.100.15"
         print("Connecting to server...")
         client = join_server(address, 9999)
