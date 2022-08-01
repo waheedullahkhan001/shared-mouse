@@ -25,13 +25,20 @@ def receive_text(con):
 
 
 def on_mouse_move(x: int, y: int):
+    mouse_move(682, 0)
     print(f"Mouse moved to {x}, {y}")
     message = f"MV:{x},{y}"
     send_text(connection, message)
     pass
 
 
+def mouse_move(x, y):
+    cx, cy = mouse.Controller().position
+    mouse.Controller().move(x - cx, y - cy)
+
+
 def on_mouse_click(x: int, y: int, button: mouse.Button, pressed: bool):
+    mouse.Controller().move(682, 0)
     print(f"Mouse clicked at {x}, {y} with {button}")
     message = f"CL:{x},{y},{button.name},{int(pressed)}"
     send_text(connection, message)
@@ -71,12 +78,12 @@ def action(message):
         x, y = message[3:].split(",")
         x = int(x)
         y = int(y)
-        mouse.Controller().move(x, y)
+        mouse_move(x, y)
     elif message.startswith("CL:"):
         x, y, button, pressed = message[3:].split(",")
         x = int(x)
         y = int(y)
-        mouse.Controller().move(x, y)
+        mouse_move(x, y)
         button = mouse.Button(int(button))
         pressed = bool(int(pressed))
         mouse.Controller().click(button, pressed)
@@ -92,6 +99,7 @@ def main():
     choice = input()
     if choice == "1":
         server = create_server("0.0.0.0", 9999)
+        print("Waiting for connection...")
         global connection
         connection, _ = server.accept()
         print("Connected to client")
