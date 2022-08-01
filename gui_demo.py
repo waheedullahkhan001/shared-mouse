@@ -13,15 +13,18 @@ class GUI(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("Sahred Mouse")
+        self.setWindowTitle("Shared Mouse")
         self.resize(600, 300)
 
         self.createMenu()
         self.createWidgets()
 
+        self.hosting = False
+        self.joining = False
+
     def createMenu(self):
         menubar = self.menuBar()
-        dashboardMenu = menubar.addMenu("Dasboard")
+        dashboardMenu = menubar.addMenu("Dashboard")
         settingsMenu = menubar.addMenu("Settings")
 
     def createWidgets(self):
@@ -41,44 +44,44 @@ class GUI(QMainWindow):
         self.vbox.addLayout(self.hbox3)
         self.vbox.addLayout(self.hbox3)
 
-
         self.secrityKeyLabel = QLabel("Security Key:")
         self.securityKeyLineEdit = QLineEdit()
+        self.securityKeyLineEdit.setText("Demo Security Key X&Y")
+        self.securityKeyLineEdit.setEchoMode(QLineEdit.Password)
+        self.securityKeyLineEdit.setReadOnly(True)
         self.checkBox = QCheckBox("Show text")
+        self.checkBox.stateChanged.connect(self.showSecurityKeyCheckBoxSubmit)
         self.newKeyButton = QPushButton("New Key")
 
         self.hbox1.addWidget(self.secrityKeyLabel)
         self.hbox1.addWidget(self.securityKeyLineEdit)
         self.hbox1.addWidget(self.checkBox)
         self.hbox1.addWidget(self.newKeyButton)
+        imgPixmap = QPixmap("resources/images/computer.png")
+        imgPixmap = imgPixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio)
 
-
-        for i in range(4):
+        for i in range(3): # we will only work with 3 computers for now
             vbox = QVBoxLayout()
-
             self.hbox2.addLayout(vbox)
 
-            
-            imageLabel = QLabel()
-            lineEdit = QLineEdit()
-            imgPixmap = QPixmap("resources/images/computer.png")
+            machineImageLabel = QLabel()
+            machineNameLineEdit = QLineEdit()
 
-            imgPixmap = imgPixmap.scaled(100, 100, Qt.AspectRatioMode.KeepAspectRatio)
-            imageLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            imageLabel.setPixmap(imgPixmap)
-            lineEdit.setPlaceholderText("Machine Name")
+            machineImageLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            machineImageLabel.setPixmap(imgPixmap)
+            machineNameLineEdit.setPlaceholderText("Machine Name")
 
-            vbox.addWidget(imageLabel)
-            vbox.addWidget(lineEdit)
+            vbox.addWidget(machineImageLabel)
+            vbox.addWidget(machineNameLineEdit)
 
-        
-        self.ipLineEdit = QLineEdit()
+
+        self.addressLineEdit = QLineEdit()
         self.joinButton = QPushButton("Join")
         self.hostButton = QPushButton("Host")
 
-        self.ipLineEdit.setPlaceholderText("IP Address")
+        self.addressLineEdit.setPlaceholderText("IP Address")
 
-        self.hbox3.addWidget(self.ipLineEdit)
+        self.hbox3.addWidget(self.addressLineEdit)
         self.hbox3.addWidget(self.joinButton)
         self.hbox3.addWidget(self.hostButton)
 
@@ -98,6 +101,12 @@ class GUI(QMainWindow):
 
     def newkeyButtonSubmit(self):
         print(self.securityKeyLineEdit.text())
+    
+    def showSecurityKeyCheckBoxSubmit(self):
+        if self.checkBox.isChecked():
+            self.securityKeyLineEdit.setEchoMode(QLineEdit.Normal)
+        else:
+            self.securityKeyLineEdit.setEchoMode(QLineEdit.Password)
 
 
 if __name__ == "__main__":
