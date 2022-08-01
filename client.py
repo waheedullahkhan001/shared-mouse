@@ -3,7 +3,9 @@ from pynput import mouse
 
 
 class SharedMouseClient:
-    def __init__(self, ip: str, port: int):
+    def __init__(self, ip: str, port: int, height: int, width: int):
+        self.screenHeight = height
+        self.screenWidth = width
         self.headerLength = 10
 
         self.ip = ip
@@ -25,10 +27,9 @@ class SharedMouseClient:
             text = self.recv_text(self.clientSocket)
 
             if text.startswith("MV:"):
-                x, y = text[3:].split(",")
-                x = int(x)
-                y = int(y)
-
+                xPercent, yPercent = text[3:].split(",")
+                x = (float(xPercent) / float(100)) * float(self.screenWidth)
+                y = (float(yPercent) / float(100)) * float(self.screenHeight)
                 self.mouseMove(x, y)
 
             elif text.startswith("CL:"):
@@ -67,3 +68,6 @@ class SharedMouseClient:
             message += connection.recv(messageLength - len(message)).decode("utf-8")
 
         return message
+
+    def close(self):
+        self.clientSocket.close()

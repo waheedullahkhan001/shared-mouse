@@ -3,7 +3,10 @@ from pynput import mouse
 
 
 class SharedMouseServer:
-    def __init__(self, host: str, port: int):
+    def __init__(self, host: str, port: int, height: int, width: int):
+        self.screenHeight = height
+        self.screenWidth = width
+        self.connection = None
         self.headerLength = 10
 
         self.host = host
@@ -12,15 +15,19 @@ class SharedMouseServer:
         self.serverSocket = socket(AF_INET, SOCK_STREAM)
         self.serverSocket.bind((self.host, self.port))
         self.serverSocket.listen(1)
-    
+
     def waitForClient(self):
         self.connection, _ = self.serverSocket.accept()
 
     def onMouseMove(self, x: int, y: int):
-        self.send_text(self.connection, f"MV:{x},{y}")
+        xPercent = (float(x) / float(self.screenWidth)) * float(100)
+        yPercent = (float(y) / float(self.screenHeight)) * float(100)
+        self.send_text(self.connection, f"MV:{xPercent},{yPercent}")
 
     def onMouseClick(self, x: int, y: int, button: mouse.Button, pressed: bool):
-        self.send_text(self.connection, f"CL:{x},{y},{button.name},{int(pressed)}")
+        xPercent = (float(x) / float(self.screenWidth)) * float(100)
+        yPercent = (float(y) / float(self.screenHeight)) * float(100)
+        self.send_text(self.connection, f"CL:{xPercent},{yPercent},{button.name},{int(pressed)}")
 
     def onMouseScroll(self, x: int, y: int, dx: int, dy: int):
         self.send_text(self.connection, f"SC:{dx},{dy}")
@@ -54,6 +61,6 @@ class SharedMouseServer:
             temp_client = socket(AF_INET, SOCK_STREAM)
             temp_client.connect(("localhost", self.port))
             temp_client.close()
-        except:
+        except Exception:
             pass
         self.serverSocket.close()

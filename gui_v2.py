@@ -4,6 +4,7 @@
 import sys
 from threading import Thread
 
+from PyQt5 import QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -16,6 +17,7 @@ class GUI(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.port = 8901
         self.root = None
         self.vBox = None
 
@@ -35,7 +37,7 @@ class GUI(QMainWindow):
         self.addressLineEdit = None
 
         self.setWindowTitle("Shared Mouse")
-        self.setFixedSize(600, 275)
+        self.setFixedSize(550, 275)
 
         self.createMenu()
         self.createWidgets()
@@ -56,6 +58,7 @@ class GUI(QMainWindow):
         # Setting up basic layout
         self.root = QWidget()
         self.vBox = QVBoxLayout()
+        self.vBox.setSpacing(15)
 
         self.setCentralWidget(self.root)
         self.root.setLayout(self.vBox)
@@ -102,14 +105,13 @@ class GUI(QMainWindow):
         for _ in range(3):  # we will only work with 3 computers for now
             vBox = QVBoxLayout()
             self.hBox2.addLayout(vBox)
-
             machineImageLabel = QLabel()
             machineNameLineEdit = QLineEdit()
 
             machineImageLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
             machineImageLabel.setPixmap(imgPixmap)
             machineNameLineEdit.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            machineNameLineEdit.setFixedWidth(175)
+            machineNameLineEdit.setFixedWidth(150)
             machineNameLineEdit.setPlaceholderText("Machine Name")
 
             vBox.addWidget(machineImageLabel)
@@ -154,7 +156,7 @@ class GUI(QMainWindow):
                 address = "localhost"
             try:
                 self.setStatus("Connecting...")
-                self.client = SharedMouseClient(address, 8901)
+                self.client = SharedMouseClient(address, self.port, self.getScreenHeight(), self.getScreenWidth())
                 self.setStatus("Connected to server!")
                 self.clientThread = Thread(target=self.client.clientLoop, daemon=True)
                 self.clientThread.start()
@@ -178,7 +180,7 @@ class GUI(QMainWindow):
         if not self.hosting:
             self.joinButton.setEnabled(False)
             self.addressLineEdit.setEnabled(False)
-            self.server = SharedMouseServer("0.0.0.0", 8901)
+            self.server = SharedMouseServer("0.0.0.0", self.port, self.getScreenHeight(), self.getScreenWidth())
             self.serverThread = Thread(target=self.waitClient, args=(self.server,), daemon=True)
             self.serverThread.start()
             self.setStatus("Waiting for client...")
@@ -200,6 +202,12 @@ class GUI(QMainWindow):
             server.startMouseListener()
         except Exception as e:  # debug
             print(f"DEBUG: serverThread: waitClient: Exception\nMSG: {e}")  # debug
+
+    def getScreenHeight(self):
+        return QtWidgets.QApplication(sys.argv).primaryScreen().size().height()
+
+    def getScreenWidth(self):
+        return QtWidgets.QApplication(sys.argv).primaryScreen().size().width()
 
 
 if __name__ == "__main__":
