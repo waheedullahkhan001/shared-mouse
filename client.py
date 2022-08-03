@@ -24,7 +24,7 @@ class SharedMouseClient:
 
     def clientLoop(self):
         while True:
-            text = self.recv_text(self.clientSocket)
+            text = self.recv_text()
 
             if text.startswith("MV:"):
                 xPercent, yPercent = text[3:].split(",")
@@ -48,24 +48,24 @@ class SharedMouseClient:
                 dy = int(dy)
 
                 self.mouseController.scroll(dx, dy)
-    
+
     def mouseMove(self, x, y):
         cx, cy = self.mouseController.position
-        self.mouseController.move(x-cx, y-cy)
+        self.mouseController.move(x - cx, y - cy)
 
-    def send_text(self, connection: socket, text: str):
+    def send_text(self, text: str):
         header = bytes(f"{len(text):<{self.headerLength}}", "utf-8")
-        connection.sendall(header + bytes(text, "utf-8"))
+        self.clientSocket.sendall(header + bytes(text, "utf-8"))
 
-    def recv_text(self, connection: socket):
-        header = connection.recv(self.headerLength)
+    def recv_text(self):
+        header = self.clientSocket.recv(self.headerLength)
         while len(header) < self.headerLength:
-            header += connection.recv(self.headerLength - len(header))
+            header += self.clientSocket.recv(self.headerLength - len(header))
 
         messageLength = int(header.decode("utf-8").strip())
-        message = connection.recv(messageLength).decode("utf-8")
+        message = self.clientSocket.recv(messageLength).decode("utf-8")
         while len(message) < messageLength:
-            message += connection.recv(messageLength - len(message)).decode("utf-8")
+            message += self.clientSocket.recv(messageLength - len(message)).decode("utf-8")
 
         return message
 

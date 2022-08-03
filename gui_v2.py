@@ -2,6 +2,7 @@
 
 
 import sys
+import socket
 from threading import Thread
 
 from PyQt5.QtCore import *
@@ -9,6 +10,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 from client import SharedMouseClient
+from machine import Machine
 from server import SharedMouseServer
 
 
@@ -16,6 +18,9 @@ class GUI(QMainWindow):
     def __init__(self, port: int, height: int, width: int):
         super().__init__()
 
+        self.rightMachine = None
+        self.middleMachine = None
+        self.leftMachine = None
         self.port = port
         self.screenHeight = height
         self.screenWidth = width
@@ -41,8 +46,8 @@ class GUI(QMainWindow):
         self.setWindowTitle("Shared Mouse")
         self.setFixedSize(550, 275)
 
-        self.createMenu()
-        self.createWidgets()
+        self.create_menu()
+        self.create_widgets()
 
         self.joining = False
         self.hosting = False
@@ -51,12 +56,12 @@ class GUI(QMainWindow):
         self.serverThread = None
         self.clientThread = None
 
-    def createMenu(self):
+    def create_menu(self):
         menubar = self.menuBar()
         menubar.addMenu("Dashboard")
         menubar.addMenu("Settings")
 
-    def createWidgets(self):
+    def create_widgets(self):
         # Setting up basic layout
         self.root = QWidget()
         self.vBox = QVBoxLayout()
@@ -94,7 +99,7 @@ class GUI(QMainWindow):
         self.checkBox = QCheckBox("Show text")
         self.newKeyButton = QPushButton("New Key")
 
-        self.checkBox.stateChanged.connect(self.securityKeyCheckBoxClicked)
+        self.checkBox.stateChanged.connect(self.security_key_checkbox_clicked)
 
         self.hBox1.addWidget(self.securityKeyLabel)
         self.hBox1.addWidget(self.securityKeyLineEdit)
@@ -103,21 +108,14 @@ class GUI(QMainWindow):
 
         # Row 2
         imgPixmap = QPixmap("resources/images/machine.png")
-
-        for _ in range(3):  # we will only work with 3 computers for now
-            vBox = QVBoxLayout()
-            self.hBox2.addLayout(vBox)
-            machineImageLabel = QLabel()
-            machineNameLineEdit = QLineEdit()
-
-            machineImageLabel.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            machineImageLabel.setPixmap(imgPixmap)
-            machineNameLineEdit.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            machineNameLineEdit.setFixedWidth(150)
-            machineNameLineEdit.setPlaceholderText("Machine Name")
-
-            vBox.addWidget(machineImageLabel)
-            vBox.addWidget(machineNameLineEdit)
+        self.leftMachine = Machine(imgPixmap)
+        self.leftMachine.set_machine_name_editable(False)
+        self.hBox2.addLayout(self.leftMachine)
+        self.middleMachine = Machine(imgPixmap)
+        self.hBox2.addLayout(self.middleMachine)
+        self.rightMachine = Machine(imgPixmap)
+        self.rightMachine.set_machine_name_editable(False)
+        self.hBox2.addLayout(self.rightMachine)
 
         # Row 3
         self.addressLineEdit = QLineEdit()
@@ -137,29 +135,41 @@ class GUI(QMainWindow):
         self.hBox5.addWidget(self.statusLabel)
 
         # Connecting signals
-        self.newKeyButton.clicked.connect(self.newKeyButtonClicked)
-        self.joinButton.clicked.connect(self.joinButtonClicked)
-        self.hostButton.clicked.connect(self.hostButtonClicked)
+        self.newKeyButton.clicked.connect(self.new_key_button_clicked)
+        self.joinButton.clicked.connect(self.join_button_clicked)
+        self.hostButton.clicked.connect(self.host_button_clicked)
 
-    def newKeyButtonClicked(self):
+    def new_key_button_clicked(self):
         print(self.securityKeyLineEdit.text())
 
-    def securityKeyCheckBoxClicked(self):
+    def security_key_checkbox_clicked(self):
         self.securityKeyLineEdit.setEchoMode(QLineEdit.Normal) if self.checkBox.isChecked() \
             else self.securityKeyLineEdit.setEchoMode(QLineEdit.Password)
 
-    def setStatus(self, text: str):
+    def set_status(self, text: str):
         self.statusLabel.setText(f"Status: {text}")
 
-    def joinButtonClicked(self):
+    def join_button_clicked(self):
         if not self.joining:
             address = self.addressLineEdit.text()
             if address == "":
                 address = "localhost"
             try:
-                self.setStatus("Connecting...")
+                self.set_status("Connecting...")
                 self.client = SharedMouseClient(address, self.port, self.screenWidth, self.screenHeight)
-                self.setStatus("Connected to server!")
+                clientMachineName = socket.gethostname()
+
+                hostMachineName = self.client.recv_text()
+                self.client.send_text(f"MN:{clientMachineName}")
+
+                hostMachineName = hostMachineName.split(":")[1]
+                self.set_status("Connected to " + hostMachineName)
+
+                self.leftMachine.set_machine_name(clientMachineName)
+                self.leftMachine.set_machine_name_editable(False)
+                self.middleMachine.set_machine_name(hostMachineName)
+                self.middleMachine.set_machine_name_editable(False)
+
                 self.clientThread = Thread(target=self.client.clientLoop, daemon=True)
                 self.clientThread.start()
                 self.joining = True
@@ -167,41 +177,64 @@ class GUI(QMainWindow):
                 self.hostButton.setEnabled(False)
                 self.addressLineEdit.setEnabled(False)
             except Exception:
-                self.setStatus("Something went wrong while connecting to server!")
+                self.set_status("Something went wrong while connecting to server!")
         else:
             # kill clientThread here & test if it works
             self.client.close()  # This should cause exception in clientThread to kill it
-            self.setStatus("Waiting for user input...")
+            self.set_status("Waiting for user input...")
             self.joinButton.setText("Join")
             self.joinButton.setEnabled(True)
             self.hostButton.setEnabled(True)
+            self.leftMachine.set_machine_name("")
+            self.leftMachine.set_machine_name_editable(True)
+            self.middleMachine.set_machine_name("")
+            self.middleMachine.set_machine_name_editable(True)
+            self.rightMachine.set_machine_name("")
+            self.rightMachine.set_machine_name_editable(True)
             self.addressLineEdit.setEnabled(True)
             self.joining = False
 
-    def hostButtonClicked(self):
+    def host_button_clicked(self):
         if not self.hosting:
+            machineName = self.middleMachine.get_machine_name()
+            if machineName == "":
+                machineName = socket.gethostname()
+                self.middleMachine.set_machine_name(machineName)
+            self.middleMachine.set_machine_name_editable(False)
+            self.leftMachine.set_machine_name_editable(False)
+
             self.joinButton.setEnabled(False)
             self.addressLineEdit.setEnabled(False)
             self.server = SharedMouseServer("0.0.0.0", self.port, self.screenWidth, self.screenHeight)
-            self.serverThread = Thread(target=self.waitClient, args=(self.server,), daemon=True)
+            self.serverThread = Thread(target=self.wait_for_client, args=(self.server, machineName), daemon=True)
             self.serverThread.start()
-            self.setStatus("Waiting for client...")
+            self.set_status("Waiting for client...")
             self.hostButton.setText("Stop")
             self.hosting = True
         else:
             # kill serverThread here & test if it works
             self.server.close()
-            self.setStatus("Waiting for user input...")
+            self.set_status("Waiting for user input...")
             self.joinButton.setEnabled(True)
             self.addressLineEdit.setEnabled(True)
+            self.middleMachine.set_machine_name_editable(True)
             self.hostButton.setText("Host")
+            self.leftMachine.set_machine_name("")
+            self.leftMachine.set_machine_name_editable(True)
+            self.middleMachine.set_machine_name_editable(True)
+            self.rightMachine.set_machine_name("")
+            self.rightMachine.set_machine_name_editable(True)
             self.hosting = False
 
-    def waitClient(self, server: SharedMouseServer):
+    def wait_for_client(self, server: SharedMouseServer, machineName: str):
         try:  # debug
-            server.waitForClient()
-            self.setStatus("Connected to client!")
-            server.startMouseListener()
+            server.wait_for_client()
+            server.send_text(f"MN:{machineName}")
+            clientMachineName = server.recv_text()
+            self.leftMachine.set_machine_name(clientMachineName.split(":")[1])
+            self.leftMachine.set_machine_name_editable(False)
+            self.set_status("Connected to client!")
+            server.start_mouse_listener()
         except Exception as e:  # debug
             print(f"DEBUG: serverThread: waitClient: Exception\nMSG: {e}")  # debug
 

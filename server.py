@@ -16,42 +16,42 @@ class SharedMouseServer:
         self.serverSocket.bind((self.host, self.port))
         self.serverSocket.listen(1)
 
-    def waitForClient(self):
+    def wait_for_client(self):
         self.connection, _ = self.serverSocket.accept()
 
-    def onMouseMove(self, x: int, y: int):
+    def on_mouse_move(self, x: int, y: int):
         xPercent = (float(x) / float(self.screenWidth)) * float(100)
         yPercent = (float(y) / float(self.screenHeight)) * float(100)
-        self.send_text(self.connection, f"MV:{xPercent},{yPercent}")
+        self.send_text(f"MV:{xPercent},{yPercent}")
 
-    def onMouseClick(self, x: int, y: int, button: mouse.Button, pressed: bool):
+    def on_mouse_click(self, x: int, y: int, button: mouse.Button, pressed: bool):
         xPercent = (float(x) / float(self.screenWidth)) * float(100)
         yPercent = (float(y) / float(self.screenHeight)) * float(100)
-        self.send_text(self.connection, f"CL:{xPercent},{yPercent},{button.name},{int(pressed)}")
+        self.send_text(f"CL:{xPercent},{yPercent},{button.name},{int(pressed)}")
 
-    def onMouseScroll(self, x: int, y: int, dx: int, dy: int):
-        self.send_text(self.connection, f"SC:{dx},{dy}")
+    def on_mouse_scroll(self, x: int, y: int, dx: int, dy: int):
+        self.send_text(f"SC:{dx},{dy}")
 
-    def startMouseListener(self):
+    def start_mouse_listener(self):
         listener = mouse.Listener(
-            on_move=self.onMouseMove,
-            on_click=self.onMouseClick,
-            on_scroll=self.onMouseScroll)
+            on_move=self.on_mouse_move,
+            on_click=self.on_mouse_click,
+            on_scroll=self.on_mouse_scroll)
         listener.start()
 
-    def send_text(self, connection: socket, text: str):
+    def send_text(self, text: str):
         header = bytes(f"{len(text):<{self.headerLength}}", "utf-8")
-        connection.sendall(header + bytes(text, "utf-8"))
+        self.connection.sendall(header + bytes(text, "utf-8"))
 
-    def recv_text(self, connection: socket):
-        header = connection.recv(self.headerLength)
+    def recv_text(self):
+        header = self.connection.recv(self.headerLength)
         while len(header) < self.headerLength:
-            header += connection.recv(self.headerLength - len(header))
+            header += self.connection.recv(self.headerLength - len(header))
 
         messageLength = int(header.decode("utf-8").strip())
-        message = connection.recv(messageLength).decode("utf-8")
+        message = self.connection.recv(messageLength).decode("utf-8")
         while len(message) < messageLength:
-            message += connection.recv(messageLength - len(message)).decode("utf-8")
+            message += self.connection.recv(messageLength - len(message)).decode("utf-8")
 
         return message
 
