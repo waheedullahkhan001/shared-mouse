@@ -1,10 +1,30 @@
+import time
 from socket import socket, AF_INET, SOCK_STREAM
+from threading import Thread
+
 from pynput import mouse
 
 connection = None
 headerLength = 10
 fixed_x = 682
 fixed_y = 0
+
+lock = True
+
+
+def break_lock():
+    print("Breaking lock in 30 seconds")
+    time.sleep(30)
+    global lock
+    lock = False
+
+
+def lock_mouse_position():
+    Thread(target=break_lock).start()
+    while lock:
+        mouse_move(fixed_x, fixed_y)
+        # time.sleep(0.1)
+    print("Lock broken")
 
 
 def send_text(con, message):
@@ -26,12 +46,9 @@ def receive_text(con):
 
 
 def on_mouse_move(x: int, y: int):
-    if x == fixed_x and y == fixed_y:
-        return
-    print(f"Mouse moved to {x}, {y}")
+    # print(f"Mouse moved to {x}, {y}")
     message = f"MV:{x},{y}"
     send_text(connection, message)
-    pass
 
 
 def mouse_move(x, y):
@@ -96,6 +113,7 @@ def action(message):
 
 
 def main():
+    Thread(target=lock_mouse_position).start()
     print("Enter 1 to host, 2 to join")
     choice = input()
     if choice == "1":
@@ -104,7 +122,6 @@ def main():
         global connection
         connection, _ = server.accept()
         print("Connected to client")
-        mouse_move(fixed_x, fixed_y)
         start_mouse_listener()
     elif choice == "2":
         address = input("Enter address: ")
