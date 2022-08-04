@@ -123,15 +123,19 @@ def action(message):
 
 
 def on_press(key):
-    send_text(connection, f"PR:{key.char}")
+    message = f"PR:{key.char}"
+    print(message)
+    send_text(connection, message)
 
 
 def on_release(key):
-    send_text(connection, f"RE:{key.char}")
+    message = f"RE:{key.char}"
+    print(message)
+    send_text(connection, message)
 
 
 def main():
-    Thread(target=lock_mouse_position).start()
+    # Thread(target=lock_mouse_position).start()
     print("Enter 1 to host, 2 to join")
     choice = input()
     if choice == "1":
