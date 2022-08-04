@@ -3,6 +3,7 @@ from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
 
 from pynput import mouse, keyboard
+from pynput.keyboard import KeyCode
 
 connection = None
 headerLength = 10
@@ -120,16 +121,17 @@ def action(message):
         mouse.Controller().scroll(dx, dy)
     elif message.startswith("PR:"):
         key = message[3:]
-        keyboard.Controller().press(key)
+        keyboard.Controller().press(KeyCode(key))
     elif message.startswith("RE:"):
         key = message[3:]
-        keyboard.Controller().release(key)
+        keyboard.Controller().release(KeyCode(key))
 
 
 def on_press(key):
     message = f"PR:{key}"
     print(message)
     send_text(connection, message)
+    print(f"Sent: {message}")
 
 
 def on_release(key):
