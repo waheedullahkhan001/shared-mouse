@@ -121,26 +121,33 @@ def action(message):
         mouse.Controller().scroll(dx, dy)
     elif message.startswith("PR:"):
         key = message[3:]
-        keyboard.Controller().press(KeyCode(key))
+        keyboard.Controller().press(KeyCode.from_vk(int(key)))
     elif message.startswith("RE:"):
         key = message[3:]
-        keyboard.Controller().release(KeyCode(key))
+        keyboard.Controller().release(KeyCode.from_vk(int(key)))
 
 
 def on_press(key):
-    message = f"PR:{key}"
-    print(message)
+    message = f"PR:{key.vk}"
     send_text(connection, message)
-    print(f"Sent: {message}")
 
 
 def on_release(key):
-    message = f"RE:{key}"
-    print(message)
+    message = f"RE:{key.vk}"
     send_text(connection, message)
 
 
+def main1():
+    keyboardListener = keyboard.Listener(
+        on_press=on_press,
+        on_release=on_release)
+    keyboardListener.start()
+    while True:
+        time.sleep(0.1)
+
+
 def main():
+    main1()
     # Thread(target=lock_mouse_position).start()
     print("Enter 1 to host, 2 to join")
     choice = input()
