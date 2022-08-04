@@ -147,7 +147,7 @@ def main1():
 
 
 def main():
-    main1()
+    # main1()
     # Thread(target=lock_mouse_position).start()
     print("Enter 1 to host, 2 to join")
     choice = input()
