@@ -128,13 +128,15 @@ def action(message):
 
 
 def on_press(key):
-    message = f"PR:{key.vk}"
-    send_text(connection, message)
+    if hasattr(key, "vk"):
+        message = f"PR:{key.vk}"
+        send_text(connection, message)
 
 
 def on_release(key):
-    message = f"RE:{key.vk}"
-    send_text(connection, message)
+    if hasattr(key, "vk"):
+        message = f"RE:{key.vk}"
+        send_text(connection, message)
 
 
 def main1():
