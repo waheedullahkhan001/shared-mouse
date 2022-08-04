@@ -50,13 +50,13 @@ class SharedMouseClient:
                 dy = int(dy)
                 self.mouseController.scroll(dx, dy)
 
-            elif text.startswith("key pressed:"):
-                key = text[12:]
-                self.keyboardController.press(KeyCode.from_char(key))
+            elif text.startswith("PR:"):
+                key = text[3:]
+                self.keyboardController.press(KeyCode.from_vk(int(key)))
 
-            elif text.startswith("key released:"):
-                key = text[13:]
-                self.keyboardController.release(KeyCode.from_char(key))
+            elif text.startswith("RE:"):
+                key = text[3:]
+                self.keyboardController.release(KeyCode.from_vk(int(key)))
 
     def mouseMove(self, x, y):
         cx, cy = self.mouseController.position
