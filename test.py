@@ -127,13 +127,13 @@ def action(message):
 
 
 def on_press(key):
-    message = f"PR:{key.value}"
+    message = f"PR:{key}"
     print(message)
     send_text(connection, message)
 
 
 def on_release(key):
-    message = f"RE:{key.value}"
+    message = f"RE:{key}"
     print(message)
     send_text(connection, message)
 
