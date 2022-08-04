@@ -10,6 +10,11 @@ fixed_x = 682
 fixed_y = 0
 
 lock = True
+mouseButtons = {
+    "left": mouse.Button.left,
+    "middle": mouse.Button.middle,
+    "right": mouse.Button.right
+}
 
 
 def break_lock():
@@ -106,9 +111,8 @@ def action(message):
         x = int(x)
         y = int(y)
         mouse_move(x, y)
-        button = mouse.Button(int(button))
-        pressed = bool(int(pressed))
-        mouse.Controller().click(button, pressed)
+        button = mouseButtons[button]
+        mouse.Controller().press(button) if pressed else mouse.Controller().release(button)
     elif message.startswith("SC:"):
         dx, dy = message[3:].split(",")
         dx = int(dx)
