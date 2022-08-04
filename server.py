@@ -1,5 +1,6 @@
 from socket import socket, AF_INET, SOCK_STREAM
 from pynput import mouse
+from pynput import keyboard
 
 
 class SharedMouseServer:
@@ -32,12 +33,22 @@ class SharedMouseServer:
     def on_mouse_scroll(self, x: int, y: int, dx: int, dy: int):
         self.send_text(f"SC:{dx},{dy}")
 
+    def on_press(self, key):
+        self.send_text(f"key pressed:{key}")
+
+    def on_release(self, key):
+        self.send_text(f"key released:{key}")
+
     def start_mouse_listener(self):
-        listener = mouse.Listener(
+        mouseListener = mouse.Listener(
             on_move=self.on_mouse_move,
             on_click=self.on_mouse_click,
             on_scroll=self.on_mouse_scroll)
-        listener.start()
+        keyboardListener = keyboard.Listener(
+            on_press=self.on_press,
+            on_release=self.on_release)
+        mouseListener.start()
+        keyboardListener.start()
 
     def send_text(self, text: str):
         header = bytes(f"{len(text):<{self.headerLength}}", "utf-8")

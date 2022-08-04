@@ -2,7 +2,7 @@ import time
 from socket import socket, AF_INET, SOCK_STREAM
 from threading import Thread
 
-from pynput import mouse
+from pynput import mouse, keyboard
 
 connection = None
 headerLength = 10
@@ -76,6 +76,10 @@ def start_mouse_listener():
         on_click=on_mouse_click,
         on_scroll=on_mouse_scroll)
     listener.start()
+    keyboardListener = keyboard.Listener(
+        on_press=on_press,
+        on_release=on_release)
+    keyboardListener.start()
 
 
 def create_server(host: str, port: int):
@@ -110,6 +114,14 @@ def action(message):
         dx = int(dx)
         dy = int(dy)
         mouse.Controller().scroll(dx, dy)
+
+
+def on_press(key):
+    print(f"key pressed: {key}")
+
+
+def on_release(key):
+    print(f"key released: {key}")
 
 
 def main():

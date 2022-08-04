@@ -1,5 +1,7 @@
 from socket import socket, AF_INET, SOCK_STREAM
 from pynput import mouse
+from pynput import keyboard
+from pynput.keyboard import Key, KeyCode
 
 
 class SharedMouseClient:
@@ -15,6 +17,7 @@ class SharedMouseClient:
         self.clientSocket.connect((self.ip, self.port))
 
         self.mouseController = mouse.Controller()
+        self.keyboardController = keyboard.Controller()
 
         self.mouseButtons = {
             "left": mouse.Button.left,
@@ -38,7 +41,6 @@ class SharedMouseClient:
                 y = int((float(yPercent) / float(100)) * float(self.screenHeight))
                 button = self.mouseButtons[button]
                 pressed = bool(int(pressed))
-
                 self.mouseMove(x, y)
                 self.mouseController.press(button) if pressed else self.mouseController.release(button)
 
@@ -46,8 +48,15 @@ class SharedMouseClient:
                 dx, dy = text[3:].split(",")
                 dx = int(dx)
                 dy = int(dy)
-
                 self.mouseController.scroll(dx, dy)
+
+            elif text.startswith("key pressed:"):
+                key = text[12:]
+                self.keyboardController.press(KeyCode.from_char(key))
+
+            elif text.startswith("key released:"):
+                key = text[13:]
+                self.keyboardController.release(KeyCode.from_char(key))
 
     def mouseMove(self, x, y):
         cx, cy = self.mouseController.position
