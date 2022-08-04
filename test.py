@@ -114,14 +114,20 @@ def action(message):
         dx = int(dx)
         dy = int(dy)
         mouse.Controller().scroll(dx, dy)
+    elif message.startswith("PR:"):
+        key = message[3:]
+        keyboard.Controller().press(key)
+    elif message.startswith("RE:"):
+        key = message[3:]
+        keyboard.Controller().release(key)
 
 
 def on_press(key):
-    print(f"key pressed: {key}")
+    send_text(connection, f"PR:{key.char}")
 
 
 def on_release(key):
-    print(f"key released: {key}")
+    send_text(connection, f"RE:{key.char}")
 
 
 def main():
