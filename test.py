@@ -5,6 +5,8 @@ from threading import Thread
 from pynput import mouse, keyboard
 from pynput.keyboard import KeyCode
 
+from special_keys import special_keys
+
 connection = None
 headerLength = 10
 fixed_x = 682
@@ -145,16 +147,24 @@ def on_release(key):
 
 def on_press_demo(key):
     message = f"{key}"
+    global previous_pressed_msg
     if not previous_pressed_msg == message:
         print(message)
-        keyboard.Controller().press(message)
+        print(message.strip("'").strip('"'))
+        if hasattr(key, "name"):  # if key is a special key
+            keyboard.Controller().press(special_keys[key.name])
+        elif hasattr(key, "char"):  # if key is a character
+            keyboard.Controller().press(key.char)
+        previous_pressed_msg = message
 
 
 def on_release_demo(key):
     message = f"{key}"
-    if not previous_pressed_msg == message:
-        print(message)
-        keyboard.Controller().press(message)
+    global previous_released_msg
+    if not previous_released_msg == message:
+        # print(message)
+        # keyboard.Controller().press(message.replace("'", "", 2))
+        previous_released_msg = message
 
 
 def main1():

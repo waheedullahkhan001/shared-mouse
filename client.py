@@ -3,6 +3,8 @@ from pynput import mouse
 from pynput import keyboard
 from pynput.keyboard import Key, KeyCode
 
+from special_keys import special_keys
+
 
 class SharedMouseClient:
     def __init__(self, ip: str, port: int, height: int, width: int):
@@ -51,12 +53,24 @@ class SharedMouseClient:
                 self.mouseController.scroll(dx, dy)
 
             elif text.startswith("PR:"):
-                key = text[3:]
-                self.keyboardController.press(KeyCode.from_vk(int(key)))
+                keyName = text[3:]
+                if keyName in special_keys:
+                    self.keyboardController.press(special_keys[keyName])
+                else:
+                    try:
+                        self.keyboardController.press(keyName)
+                    except ValueError as e:
+                        print(f"Key {keyName} not found")
 
             elif text.startswith("RE:"):
-                key = text[3:]
-                self.keyboardController.release(KeyCode.from_vk(int(key)))
+                keyName = text[3:]
+                if keyName in special_keys:
+                    self.keyboardController.press(special_keys[keyName])
+                else:
+                    try:
+                        self.keyboardController.press(keyName)
+                    except ValueError as e:
+                        print(f"Key {keyName} not found")
 
     def mouseMove(self, x, y):
         cx, cy = self.mouseController.position
