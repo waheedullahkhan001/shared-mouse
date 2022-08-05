@@ -76,8 +76,9 @@ class SharedMouseServer:
         self.middleMachineEnabled = False
 
     def on_paste_hotkey(self):
-        clipboard = pyperclip.paste()
-        self.send_text(f"PC:{clipboard}")
+        if self.leftMachineEnabled:
+            clipboard = pyperclip.paste()
+            self.send_text(f"PC:{clipboard}")
 
     def start_event_listeners(self):
         mouseListener = mouse.Listener(
