@@ -11,6 +11,10 @@ fixed_x = 682
 fixed_y = 0
 
 lock = True
+
+previous_pressed_msg = ""
+previous_released_msg = ""
+
 mouseButtons = {
     "left": mouse.Button.left,
     "middle": mouse.Button.middle,
@@ -139,17 +143,31 @@ def on_release(key):
         send_text(connection, message)
 
 
+def on_press_demo(key):
+    message = f"{key}"
+    if not previous_pressed_msg == message:
+        print(message)
+        keyboard.Controller().press(message)
+
+
+def on_release_demo(key):
+    message = f"{key}"
+    if not previous_pressed_msg == message:
+        print(message)
+        keyboard.Controller().press(message)
+
+
 def main1():
     keyboardListener = keyboard.Listener(
-        on_press=on_press,
-        on_release=on_release)
+        on_press=on_press_demo,
+        on_release=on_release_demo)
     keyboardListener.start()
     while True:
         time.sleep(0.1)
 
 
 def main():
-    # main1()
+    main1()
     # Thread(target=lock_mouse_position).start()
     print("Enter 1 to host, 2 to join")
     choice = input()

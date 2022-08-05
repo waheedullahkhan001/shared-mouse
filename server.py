@@ -36,10 +36,14 @@ class SharedMouseServer:
     def on_press(self, key):
         if hasattr(key, "vk"):
             self.send_text(f"PR:{key.vk}")
+        elif hasattr(key, "value") and hasattr(key.value, "vk"):
+            self.send_text(f"RE:{key.value.vk}")
 
     def on_release(self, key):
         if hasattr(key, "vk"):
             self.send_text(f"RE:{key.vk}")
+        elif hasattr(key, "value") and hasattr(key.value, "vk"):
+            self.send_text(f"RE:{key.value.vk}")
 
     def start_mouse_listener(self):
         mouseListener = mouse.Listener(
