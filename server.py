@@ -1,4 +1,6 @@
 from socket import socket, AF_INET, SOCK_STREAM
+
+import pyperclip
 from pynput import mouse
 from pynput import keyboard
 
@@ -63,15 +65,19 @@ class SharedMouseServer:
         self.leftMachineEnabled = False
         self.rightMachineEnabled = False
 
-    def on_left_machine_hockey(self):
+    def on_left_machine_hotkey(self):
         self.leftMachineEnabled = True
         self.middleMachineEnabled = False
         self.rightMachineEnabled = False
 
-    def on_right_machine_hockey(self):
+    def on_right_machine_hotkey(self):
         self.rightMachineEnabled = True
         self.leftMachineEnabled = False
         self.middleMachineEnabled = False
+
+    def on_paste_hotkey(self):
+        clipboard = pyperclip.paste()
+        self.send_text(f"PC:{clipboard}")
 
     def start_event_listeners(self):
         mouseListener = mouse.Listener(
@@ -85,8 +91,9 @@ class SharedMouseServer:
         )
         hotkeys = keyboard.GlobalHotKeys({
             '<alt>+m': self.on_middle_machine_hotkey,
-            '<alt>+l': self.on_left_machine_hockey,
-            '<alt>+r': self.on_right_machine_hockey,
+            '<alt>+l': self.on_left_machine_hotkey,
+            '<alt>+r': self.on_right_machine_hotkey,
+            '<alt>+v': self.on_paste_hotkey,
         })
         mouseListener.start()
         keyboardListener.start()

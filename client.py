@@ -71,6 +71,9 @@ class SharedMouseClient:
                         self.keyboardController.release(keyName)
                     except ValueError as e:
                         print(f"Key {keyName} not found")
+            elif text.startswith("PC:"):
+                text = text[3:]
+                self.keyboardController.type(text)
 
     def mouseMove(self, x, y):
         cx, cy = self.mouseController.position
