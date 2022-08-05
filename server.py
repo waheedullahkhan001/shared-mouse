@@ -10,6 +10,10 @@ class SharedMouseServer:
         self.connection = None
         self.headerLength = 10
 
+        self.leftMachineEnabled = False
+        self.middleMachineEnabled = True
+        self.rightMachineEnabled = False
+
         self.host = host
         self.port = port
 
@@ -21,39 +25,53 @@ class SharedMouseServer:
         self.connection, _ = self.serverSocket.accept()
 
     def on_mouse_move(self, x: int, y: int):
-        xPercent = (float(x) / float(self.screenWidth)) * float(100)
-        yPercent = (float(y) / float(self.screenHeight)) * float(100)
-        self.send_text(f"MV:{xPercent},{yPercent}")
+        if self.leftMachineEnabled:
+            xPercent = (float(x) / float(self.screenWidth)) * float(100)
+            yPercent = (float(y) / float(self.screenHeight)) * float(100)
+            self.send_text(f"MV:{xPercent},{yPercent}")
 
     def on_mouse_click(self, x: int, y: int, button: mouse.Button, pressed: bool):
-        xPercent = (float(x) / float(self.screenWidth)) * float(100)
-        yPercent = (float(y) / float(self.screenHeight)) * float(100)
-        self.send_text(f"CL:{xPercent},{yPercent},{button.name},{int(pressed)}")
+        if self.leftMachineEnabled:
+            xPercent = (float(x) / float(self.screenWidth)) * float(100)
+            yPercent = (float(y) / float(self.screenHeight)) * float(100)
+            self.send_text(f"CL:{xPercent},{yPercent},{button.name},{int(pressed)}")
 
     def on_mouse_scroll(self, x: int, y: int, dx: int, dy: int):
-        self.send_text(f"SC:{dx},{dy}")
+        if self.leftMachineEnabled:
+            self.send_text(f"SC:{dx},{dy}")
 
-    def on_press(self, key):
-        if hasattr(key, "name"):  # if key is a special key
-            keyName = key.name
-            self.send_text(f"PR:{keyName}")
-        elif hasattr(key, "char"):  # if key is a character
-            keyName = key.char
-            self.send_text(f"PR:{keyName}")
+    def on_key_press(self, key):
+        if self.leftMachineEnabled:
+            if hasattr(key, "name"):  # if key is a special key
+                keyName = key.name
+                self.send_text(f"PR:{keyName}")
+            elif hasattr(key, "char"):  # if key is a character
+                keyName = key.char
+                self.send_text(f"PR:{keyName}")
 
-    def on_release(self, key):
-        if hasattr(key, "name"):  # if key is a special key
-            keyName = key.name
-            self.send_text(f"RE:{keyName}")
-        elif hasattr(key, "char"):  # if key is a character
-            keyName = key.char
-            self.send_text(f"RE:{keyName}")
+    def on_key_release(self, key):
+        if self.leftMachineEnabled:
+            if hasattr(key, "name"):  # if key is a special key
+                keyName = key.name
+                self.send_text(f"RE:{keyName}")
+            elif hasattr(key, "char"):  # if key is a character
+                keyName = key.char
+                self.send_text(f"RE:{keyName}")
 
     def on_middle_machine_hotkey(self):
-        print("Middle machine hotkey pressed")
+        self.middleMachineEnabled = True
+        self.leftMachineEnabled = False
+        self.rightMachineEnabled = False
 
     def on_left_machine_hockey(self):
-        print("Left machine hockey pressed")
+        self.leftMachineEnabled = True
+        self.middleMachineEnabled = False
+        self.rightMachineEnabled = False
+
+    def on_right_machine_hockey(self):
+        self.rightMachineEnabled = True
+        self.leftMachineEnabled = False
+        self.middleMachineEnabled = False
 
     def start_event_listeners(self):
         mouseListener = mouse.Listener(
@@ -61,12 +79,13 @@ class SharedMouseServer:
             on_click=self.on_mouse_click,
             on_scroll=self.on_mouse_scroll)
         keyboardListener = keyboard.Listener(
-            on_press=self.on_press,
-            on_release=self.on_release,
+            on_press=self.on_key_press,
+            on_release=self.on_key_release,
         )
         hotkeys = keyboard.GlobalHotKeys({
             '<alt>+m': self.on_middle_machine_hotkey,
             '<alt>+l': self.on_left_machine_hockey,
+            '<alt>+r': self.on_right_machine_hockey,
         })
         mouseListener.start()
         keyboardListener.start()

@@ -1,6 +1,3 @@
-# PyQt5 GUI App
-
-
 import sys
 import socket
 from threading import Thread
