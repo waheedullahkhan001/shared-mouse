@@ -1,7 +1,7 @@
 from socket import socket, AF_INET, SOCK_STREAM
-from pynput import mouse
+
 from pynput import keyboard
-from pynput.keyboard import Key, KeyCode
+from pynput import mouse
 
 from special_keys import special_keys
 

@@ -12,6 +12,7 @@ from server import SharedMouseServer
 
 
 class GUI(QMainWindow):
+
     def __init__(self, port: int, height: int, width: int):
         super().__init__()
 
@@ -80,11 +81,6 @@ class GUI(QMainWindow):
         self.vBox.addLayout(self.hBox3)
         self.vBox.addLayout(self.hBox4)
         self.vBox.addLayout(self.hBox5)
-
-        # there are 5 entries (all hbox) in self.vBox each having stretch priority 0 (0,0,0,0,0)
-        # 1, 2, 4, 5 are used to contain widgets and 3 is used as seperator
-        # this line will set stretch priority of 3 to 1 (0,0,1,0,0) so other don't stretch
-        # and make it look ugly
         self.vBox.setStretch(2, 1)
 
         # Row 1
@@ -176,8 +172,7 @@ class GUI(QMainWindow):
             except Exception:
                 self.set_status("Something went wrong while connecting to server!")
         else:
-            # kill clientThread here & test if it works
-            self.client.close()  # This should cause exception in clientThread to kill it
+            self.client.close()
             self.set_status("Waiting for user input...")
             self.joinButton.setText("Join")
             self.joinButton.setEnabled(True)
@@ -209,7 +204,6 @@ class GUI(QMainWindow):
             self.hostButton.setText("Stop")
             self.hosting = True
         else:
-            # kill serverThread here & test if it works
             self.server.close()
             self.set_status("Waiting for user input...")
             self.joinButton.setEnabled(True)

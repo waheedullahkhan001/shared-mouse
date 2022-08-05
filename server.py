@@ -77,7 +77,8 @@ class SharedMouseServer:
         mouseListener = mouse.Listener(
             on_move=self.on_mouse_move,
             on_click=self.on_mouse_click,
-            on_scroll=self.on_mouse_scroll)
+            on_scroll=self.on_mouse_scroll,
+        )
         keyboardListener = keyboard.Listener(
             on_press=self.on_key_press,
             on_release=self.on_key_release,
