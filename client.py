@@ -68,7 +68,7 @@ class SharedMouseClient:
                     self.keyboardController.press(special_keys[keyName])
                 else:
                     try:
-                        self.keyboardController.press(keyName)
+                        self.keyboardController.release(keyName)
                     except ValueError as e:
                         print(f"Key {keyName} not found")
 
