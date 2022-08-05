@@ -65,7 +65,7 @@ class SharedMouseClient:
             elif text.startswith("RE:"):
                 keyName = text[3:]
                 if keyName in special_keys:
-                    self.keyboardController.press(special_keys[keyName])
+                    self.keyboardController.release(special_keys[keyName])
                 else:
                     try:
                         self.keyboardController.release(keyName)

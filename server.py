@@ -36,10 +36,10 @@ class SharedMouseServer:
     def on_press(self, key):
         if hasattr(key, "name"):  # if key is a special key
             keyName = key.name
-            self.send_text(f"RE:{keyName}")
+            self.send_text(f"PR:{keyName}")
         elif hasattr(key, "char"):  # if key is a character
             keyName = key.char
-            self.send_text(f"RE:{keyName}")
+            self.send_text(f"PR:{keyName}")
 
     def on_release(self, key):
         if hasattr(key, "name"):  # if key is a special key
