@@ -234,7 +234,7 @@ class GUI(QMainWindow):
             self.leftMachine.set_machine_name(clientMachineName.split(":")[1])
             self.leftMachine.set_machine_name_editable(False)
             self.set_status("Connected to client!")
-            server.start_mouse_listener()
+            server.start_event_listeners()
         except Exception as e:  # debug
             print(f"DEBUG: serverThread: waitClient: Exception\nMSG: {e}")  # debug
 

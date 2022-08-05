@@ -49,16 +49,28 @@ class SharedMouseServer:
             keyName = key.char
             self.send_text(f"RE:{keyName}")
 
-    def start_mouse_listener(self):
+    def on_middle_machine_hotkey(self):
+        print("Middle machine hotkey pressed")
+
+    def on_left_machine_hockey(self):
+        print("Left machine hockey pressed")
+
+    def start_event_listeners(self):
         mouseListener = mouse.Listener(
             on_move=self.on_mouse_move,
             on_click=self.on_mouse_click,
             on_scroll=self.on_mouse_scroll)
         keyboardListener = keyboard.Listener(
             on_press=self.on_press,
-            on_release=self.on_release)
+            on_release=self.on_release,
+        )
+        hotkeys = keyboard.GlobalHotKeys({
+            '<alt>+m': self.on_middle_machine_hotkey,
+            '<alt>+l': self.on_left_machine_hockey,
+        })
         mouseListener.start()
         keyboardListener.start()
+        hotkeys.start()
 
     def send_text(self, text: str):
         header = bytes(f"{len(text):<{self.headerLength}}", "utf-8")

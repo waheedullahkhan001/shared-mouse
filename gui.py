@@ -90,7 +90,7 @@ class MainWindow(QWidget):
     def waitClient(self, server: SharedMouseServer):
         server.wait_for_client()
         self.setStatus("Connected to client!")
-        server.start_mouse_listener()
+        server.start_event_listeners()
 
     def setStatus(self, text: str):
         self.statusLable.setText(f"Status: {text}")
